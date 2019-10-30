@@ -19,6 +19,14 @@ set -e
 # echo ::set-output name={name}::{value}
 # -- DONT FORGET TO SET OUTPUTS IN action.yml IF RETURNING OUTPUTS
 
+# Remove only repository name
+# e.g. return "action.build-and-push-docker" from "Konsentus/action.build-and-push-docker"
+REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+
+# Return branch name
+# e.g. return "master" from "refs/heads/master"
+BRANCH_NAME=${GITHUB_REF##*/}
+
 assume_role() {
   echo "Assuming role"
   CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ACCOUNT_ROLE}" --role-session-name ami-builder --output json)
@@ -37,10 +45,10 @@ assume_role
 
 $(aws ecr get-login --no-include-email --region $AWS_REGION)
 
-image_name="$AWS_ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$GITHUB_REPOSITORY"
+image_name="$AWS_ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$REPOSITORY_NAME"
 image_id=$(docker image build -q --no-cache . | cut -d':' -f2)
-docker tag "${image_id}" "${image_name}:${GITHUB_REF}"
-docker push "${image_name}:${GITHUB_REF}"
+docker tag "${image_id}" "${image_name}:${BRANCH_NAME}"
+docker push "${image_name}:${BRANCH_NAME}"
 
 # TODO investigate passing extra tags
 # for tag in "${_arg_tag[@]}"
