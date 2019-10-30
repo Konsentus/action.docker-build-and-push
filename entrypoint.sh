@@ -41,7 +41,7 @@ assume_role() {
   AWS_SESSION_TOKEN=$(jq -r .Credentials.SessionToken <<< ${CREDS})
 }
 
-echo ls $GITHUB_WORKSPACE
+ls $GITHUB_WORKSPACE
 
 assume_role
 
@@ -53,7 +53,7 @@ image_id=$(docker image build -q --no-cache . | cut -d':' -f2)
 docker tag "${image_id}" "${image_name}:${BRANCH_NAME}"
 docker push "${image_name}:${BRANCH_NAME}"
 
-docker tag "${image_id}" "${GITHUB_SHA}"
+docker tag "${image_id}" "${image_name}:${GITHUB_SHA}"
 docker push "${image_name}:${GITHUB_SHA}"
 
 # TODO investigate passing extra tags
