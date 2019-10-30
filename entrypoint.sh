@@ -29,7 +29,7 @@ BRANCH_NAME=${GITHUB_REF##*/}
 
 assume_role() {
   echo "Assuming role"
-  CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ACCOUNT_ROLE}" --role-session-name ami-builder --output json)
+  CREDS=$(aws sts assume-role --role-arn "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ACCOUNT_ROLE}" --role-session-name docker-push --output json)
 
   export AWS_ACCESS_KEY_ID
   export AWS_SECRET_ACCESS_KEY
@@ -41,14 +41,20 @@ assume_role() {
   AWS_SESSION_TOKEN=$(jq -r .Credentials.SessionToken <<< ${CREDS})
 }
 
+echo ls $GITHUB_WORKSPACE
+
 assume_role
 
 $(aws ecr get-login --no-include-email --region $AWS_REGION)
 
 image_name="$AWS_ACCOUNT_ID.dkr.ecr.eu-west-2.amazonaws.com/$REPOSITORY_NAME"
 image_id=$(docker image build -q --no-cache . | cut -d':' -f2)
+
 docker tag "${image_id}" "${image_name}:${BRANCH_NAME}"
 docker push "${image_name}:${BRANCH_NAME}"
+
+docker tag "${image_id}" "${GITHUB_SHA}"
+docker push "${image_name}:${GITHUB_SHA}"
 
 # TODO investigate passing extra tags
 # for tag in "${_arg_tag[@]}"
