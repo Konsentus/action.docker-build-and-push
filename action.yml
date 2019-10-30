@@ -1,6 +1,10 @@
-name: # the name of the action
-description: # additional descriptive info about the action
+name: Build, Tag and Push Docker Image to ECR
+description: Build, Tag and Push Docker Image to ECR
 runs:
   using: 'docker'
   image: 'Dockerfile'
+inputs:
+  ecr_endpoint:
+    description: The endpoint for the destination AWS ECR service
+    required: true
 # for additional options, see: https://help.github.com/en/articles/metadata-syntax-for-github-actions

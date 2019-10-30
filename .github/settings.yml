@@ -1,8 +1,8 @@
 # see: https://github.com/probot/settings
 
 repository:
-  name: template.github-action
-  description: Basic template repo for Github actions
+  name: action.build-and-push-image
+  description: Github action to build, tag and push a Docker image
   topics: action
   private: false
   has_issues: false
