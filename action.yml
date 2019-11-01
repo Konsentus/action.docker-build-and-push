@@ -3,3 +3,10 @@ description: Build, Tag and Push Docker Image to ECR
 runs:
   using: 'docker'
   image: 'Dockerfile'
+inputs:
+  ecr_repository_name:
+    description: The destination ECR repository name. Will default to Github repository name if not specified.
+    required: false
+  additional_tags:
+    description: Comma separated tags to apply to the Docker image in addition to the tagss for commit SHA and branch name.
+    required: false

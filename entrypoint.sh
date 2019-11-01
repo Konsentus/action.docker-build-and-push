@@ -55,7 +55,7 @@ assume_role() {
 
 build_docker_image() {
   echo "Building Docker image..."
-  image_id=$(docker image build -q --no-cache . | cut -d':' -f2)
+  docker image build -t "${ECR_REPOSITORY_NAME}" .
   echo "Successfully built Docker image"
 }
 
@@ -69,7 +69,7 @@ tag_and_push_docker_image() {
   echo "Successfully tagged and pushed Docker image: ${image_name}:${tag}"
 }
 
-loginToEcr() {
+login_to_ecr() {
   echo "Logging into ECR in region: ${AWS_REGION}..."
   $(aws ecr get-login --no-include-email --region ${AWS_REGION})
   echo "Successfully logged into ECR"
@@ -80,9 +80,21 @@ set -e
 
 check_env_vars
 
-# Returns only repository name
-# e.g. return "action.build-and-push-docker" from "Konsentus/action.build-and-push-docker"
-REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+additional_tags=()
+
+# Split and strip whitespace from comma separated values into an array
+if ! [ -z "${INPUT_ADDITIONAL_TAGS}" ]; then
+  IFS=',' read -ra additional_tags <<< "$(echo -e "${INPUT_ADDITIONAL_TAGS}" | tr -d '[:space:]')"
+fi
+
+ECR_REPOSITORY_NAME="${INPUT_ECR_REPOSITORY_NAME}"
+
+# No ECR repository specified, fall back to Github repository name
+if [ -z "${ECR_REPOSITORY_NAME}" ]; then
+  # Returns only repository name
+  # e.g. return "action.build-and-push-docker" from "Konsentus/action.build-and-push-docker"
+  ECR_REPOSITORY_NAME=${GITHUB_REPOSITORY##*/}
+fi
 
 # Returns branch name
 # e.g. return "master" from "refs/heads/master"
@@ -92,16 +104,25 @@ echo "Building Docker image..."
 
 assume_role
 
-loginToEcr
+login_to_ecr
 
-image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${REPOSITORY_NAME}"
-
-# Global variable to hold the Docker image ID
-image_id=""
+image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}"
 
 build_docker_image
 
+# Retrieve image ID of Docker image
+image_id=$(docker images -q "${ECR_REPOSITORY_NAME}")
+
+# Tag image with branch name
 tag_and_push_docker_image $image_name $BRANCH_NAME
+# Tag image with commit SHA
 tag_and_push_docker_image $image_name $GITHUB_SHA
+
+# Add additonal tags to Docker image
+for tag in "${additional_tags[@]}"
+do
+  tag_and_push_docker_image $image_name $tag
+done
+
 
 # exit with a non-zero status to flag an error/failure
