@@ -10,3 +10,8 @@ inputs:
   additional_tags:
     description: Comma separated tags to apply to the Docker image in addition to the tagss for commit SHA and branch name.
     required: false
+outputs:
+  new_image_digest:
+    description: The Docker image digest of the newly built image.
+  old_image_digest:
+    description: The Docker image digest of the previously built image, tagged with the git branch name.
