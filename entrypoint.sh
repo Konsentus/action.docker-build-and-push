@@ -155,7 +155,7 @@ login_to_ecr
 # Get the Docker image digest of the previous image tagged with the same Git branch name.
 # Will output warning to stderr if no images were found but still return 0.
 # Any other error will exit the script here
-old_image_digest=$(get_docker_image_digest $branch_name) || exit 3
+old_image_digest=$(get_docker_image_digest $branch_name) || exit $?
 
 # Output the Docker image digest
 echo "::set-output name=old_image_digest::$old_image_digest"
@@ -167,16 +167,16 @@ image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${ecr_repository_n
 build_docker_image
 
 # Retrieve image ID of Docker image
-image_id=$(docker images -q "${ecr_repository_name}") || exit 3
+image_id=$(docker images -q "${ecr_repository_name}") || exit $?
 
 # Tag image with branch name
-tag_and_push_docker_image $image_name $branch_name || exit 3
+tag_and_push_docker_image $image_name $branch_name || exit $?
 
 # Tag image with commit SHA
-tag_and_push_docker_image $image_name $GITHUB_SHA || exit 3
+tag_and_push_docker_image $image_name $GITHUB_SHA || exit $?
 
 # Get the Docker image digest of the image tagged with the current Git commit SHA
-new_image_digest=$(get_docker_image_digest $GITHUB_SHA) || exit 3
+new_image_digest=$(get_docker_image_digest $GITHUB_SHA) || exit $?
 
 # Exit if we are unable to find the image we just pushed
 if [ -z "$new_image_digest" ]; then
@@ -190,5 +190,5 @@ echo "::set-output name=new_image_digest::$new_image_digest"
 # Add additonal tags to Docker image
 for tag in "${additional_tags[@]}"
 do
-  tag_and_push_docker_image $image_name $tag || exit 3
+  tag_and_push_docker_image $image_name $tag || exit $?
 done
