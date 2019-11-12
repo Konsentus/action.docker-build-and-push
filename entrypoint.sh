@@ -110,7 +110,7 @@ tag_and_push_docker_image() {
 
 get_docker_image_digest() {
   local image_digest
-  image_digest=$(aws ecr describe-images --repository-name ${ecr_repository_name} --image-ids imageTag=$1 --query 'imageDetails[0].imageDigest' --output test)
+  image_digest=$(aws ecr describe-images --repository-name ${ecr_repository_name} --image-ids imageTag=$1 --query 'imageDetails[0].imageDigest' --output text)
   if [ $? -ne 0 ]; then
     echo $?
     echo "Failed to retrieve the Docker image digest from AWS ECR. Exiting" >&2
