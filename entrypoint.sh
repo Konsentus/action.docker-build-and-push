@@ -114,7 +114,6 @@ get_docker_image_digest() {
   if [ $? -ne 0 ]; then
     echo $image_digest_result >&2
     if [[ $image_digest_result =~ "(ImageNotFoundException)" ]]; then
-      echo "No images found in $ecr_repository_name with tag: $1" >&2
       return 0
     else
       return 3
