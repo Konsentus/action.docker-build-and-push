@@ -44,7 +44,7 @@ jobs:
 
 - `AWS_REGION`: The region in which the ECR repository exists.
 - `AWS_ACCOUNT_ROLE`: The name of a IAM Role that has the [required permissions](#Role-permissions) to push to the AWS ECR repository.
-- `AWS_ACCOUNT_ID`: The account number of the AWS account in which the ECFR repository exists.
+- `AWS_ACCOUNT_ID`: The account number of the AWS account in which the ECR repository exists.
 - `AWS_ACCESS_KEY_ID`: The AWS Access Key ID of a user with permission to assume the **AWS_ACCOUNT_ROLE**.
 - `AWS_SECRET_ACCESS_KEY`: The AWS Secret Access Key that pairs with the `AWS_ACCESS_KEY_ID`.
 
