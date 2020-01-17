@@ -142,7 +142,8 @@ fi
 # Returns only repository name
 # e.g. return "action.build-and-push-docker" from "Konsentus/action.build-and-push-docker"
 repository_name=${GITHUB_REPOSITORY##*/}
-ecr_repository_name=${INPUT_ECR_REPOSITORY_NAME:-${repository_name}} # test me
+ecr_repository_name=${INPUT_ECR_REPOSITORY_NAME:-${repository_name}}
+new_tag_only=${INPUT_NEW_TAG_ONLY}
 
 # Returns branch name
 # e.g. return "master" from "refs/heads/master"
