@@ -54,11 +54,14 @@ jobs:
 
 - `ecr_repository_name`: By default this action will attempt to push the Docker image to an AWS ECR repository named after the Github repository name (minus the repository owner). This argument allows the sepcifying of an alternative AWS ECR repository name.
 - `additional_tags`: A comma separated list of tags to apply to the image, in addition to the default tags. These values will be stripped on whitespace before being applied.
+- `new_tag_only` : When true the action will check if the imagename and tag exists in the remote repository first and not
+  push the new image if it does. The dockerfile WILL NOT be built if the push is skipped.
 
 ## Outputs
 
 - `old_image_digest`: In the case that a Docker image tagged with the branch name already exists in the AWS ECR repository, this output variable will hold the value of the Docker image digest. If there are no Docker images tagged with the branch name, then this will be empty.
 - `new_image_digest`: This output variable will hold the Docker image digest of the newly built image.
+- `push_skipped`: This output variable is set to true if the image push was skipped. Else it is not defined.
 
 ## Role permissions
 

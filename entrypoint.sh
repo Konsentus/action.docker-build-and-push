@@ -48,7 +48,7 @@ assume_role() {
 
   if [ $? -ne 0 ]; then
     echo "Failed to assume role ${AWS_ACCOUNT_ROLE} in account: ${AWS_ACCOUNT_ID}" >&2
-    return 3
+    return 4
   fi
 
   export AWS_ACCESS_KEY_ID
@@ -70,7 +70,7 @@ login_to_ecr() {
 
   if [ $? -ne 0 ]; then
     echo "Failed to log into AWS ECR" >&2
-    return 3
+    return 5
   fi
 
   echo "Successfully logged into ECR"
@@ -83,7 +83,7 @@ build_docker_image() {
 
   if [ $? -ne 0 ]; then
     echo "Failed to build Docker image" >&2
-    return 3
+    return 6
   fi
 
   echo "Successfully built Docker image"
@@ -98,7 +98,7 @@ tag_and_push_docker_image() {
 
   if [ $? -ne 0 ]; then
     echo "Failed to tag Docker image" >&2
-    return 3
+    return 7
   fi
 
   echo "Pushing Docker image: ${image_name}:${tag}"
@@ -106,7 +106,7 @@ tag_and_push_docker_image() {
 
   if [ $? -ne 0 ]; then
     echo "Failed to push Docker image" >&2
-    return 3
+    return 8
   fi
 
   echo "Successfully tagged and pushed Docker image: ${image_name}:${tag}"
@@ -121,7 +121,7 @@ get_docker_image_digest() {
     if [[ ${image_digest_result} =~ "(ImageNotFoundException)" ]]; then
       return 0
     else
-      return 3
+      return 9
     fi
   else
     echo ${image_digest_result}
@@ -165,6 +165,19 @@ echo "::set-output name=old_image_digest::${old_image_digest}"
 # Build the URI for the AWS ECR
 image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${ecr_repository_name}"
 
+if [ -z "${new_tag_only}"]; then
+
+  # Check if imagename and tag already exists and return a success value if it does
+  export DOCKER_CLI_EXPERIMENTAL=enabled 
+
+  if docker manifest inspect ${image_name}:${branch_name} 1>&2 > /dev/null; then
+    echo "Skipping push as ${image_name}:${branch_name} exists"
+    
+    echo "::set-output name=push_skippedt::true"
+    exit 0
+  fi
+fi
+
 # Build Docker image from Dockerfile in root of repository
 build_docker_image || exit $?
 
@@ -174,7 +187,7 @@ image_id=$(docker images -q "${ecr_repository_name}")
 # Check if Docker found our image locally
 if [ -z "${image_id}" ]; then
   echo "Failed to retrieve Docker image ID: Expected to find a local Docker image named ${ecr_repository_name}" >&2
-  exit 3
+  exit 10
 fi
 
 # Tag image with commit SHA
@@ -186,7 +199,7 @@ new_image_digest=$(get_docker_image_digest ${GITHUB_SHA})
 # Exit if we are unable to find the image we just pushed
 if [ -z "${new_image_digest}" ]; then
   echo "Failed to retrieve Docker image digest for new Docker image" >&2
-  exit 3
+  exit 11
 fi
 
 # Output the Docker image digest
