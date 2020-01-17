@@ -173,7 +173,7 @@ if [ -z "${new_tag_only}"]; then
   if docker manifest inspect ${image_name}:${branch_name} 1>&2 > /dev/null; then
     echo "Skipping push as ${image_name}:${branch_name} exists"
     
-    echo "::set-output name=push_skippedt::true"
+    echo "::set-output name=push_skipped::true"
     exit 0
   fi
 fi
