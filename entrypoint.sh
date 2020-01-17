@@ -166,7 +166,7 @@ echo "::set-output name=old_image_digest::${old_image_digest}"
 # Build the URI for the AWS ECR
 image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${ecr_repository_name}"
 
-if ! [ -z "${new_tag_only}" ]; then
+if [ "${new_tag_only}" == "true" ]; then
 
   # Check if imagename and tag already exists and return a success value if it does
   export DOCKER_CLI_EXPERIMENTAL=enabled 
