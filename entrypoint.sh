@@ -145,9 +145,9 @@ repository_name=${GITHUB_REPOSITORY##*/}
 ecr_repository_name=${INPUT_ECR_REPOSITORY_NAME:-${repository_name}}
 new_tag_only=${INPUT_NEW_TAG_ONLY}
 
-# Returns branch name
+# Returns branch name unless passed in as an input variable
 # e.g. return "master" from "refs/heads/master"
-branch_name=${GITHUB_REF##*/}
+branch_name=${INPUT_ENVIRONMENT:-${GITHUB_REF##*/}}
 
 # Assume role with permission to login to ECR
 assume_role || exit $?

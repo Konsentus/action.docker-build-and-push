@@ -56,6 +56,7 @@ jobs:
 - `additional_tags`: A comma separated list of tags to apply to the image, in addition to the default tags. These values will be stripped on whitespace before being applied.
 - `new_tag_only` : When true the action will check if the imagename and tag exists in the remote repository first and not
   push the new image if it does. The dockerfile WILL NOT be built if the push is skipped.
+- `environment` : When set this overrides the branch name being used to determine the environment tag being used for the image
 
 ## Outputs
 
