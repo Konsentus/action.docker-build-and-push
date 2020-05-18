@@ -1,14 +1,20 @@
 name: Build, Tag and Push Docker Image to ECR
 description: Build, Tag and Push Docker Image to ECR
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
 inputs:
   ecr_repository_name:
     description: The destination ECR repository name. Will default to Github repository name if not specified.
     required: false
   additional_tags:
-    description: Comma separated tags to apply to the Docker image in addition to the tagss for commit SHA and branch name.
+    description: Comma separated tags to apply to the Docker image in addition to the tags for commit SHA and branch name.
+    required: false
+  new_tag_only:
+    description: When true the action will check if the image name and tag exists in the remote repository first and not push the new image if it does. The dockerfile WILL NOT be built if the push is skipped.
+    required: false
+  environment:
+    description: When set this overrides the branch name being used to determine the environment tag being used for the image.
     required: false
 outputs:
   new_image_digest:
