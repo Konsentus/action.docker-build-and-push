@@ -66,7 +66,7 @@ assume_role() {
 # Request ECR credentials and execute returned command to login
 login_to_ecr() {
   echo "Logging into ECR in region: ${AWS_REGION}"
-  $(aws ecr get-login --no-include-email --region ${AWS_REGION})
+  $(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com)
 
   if [ $? -ne 0 ]; then
     echo "Failed to log into AWS ECR" >&2
@@ -169,11 +169,11 @@ image_name="${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/${ecr_repository_n
 if [ "${new_tag_only}" == "true" ]; then
 
   # Check if imagename and tag already exists and return a success value if it does
-  export DOCKER_CLI_EXPERIMENTAL=enabled 
+  export DOCKER_CLI_EXPERIMENTAL=enabled
 
   if docker manifest inspect ${image_name}:${branch_name} 1>&2 > /dev/null; then
     echo "Skipping push as ${image_name}:${branch_name} exists"
-    
+
     echo "::set-output name=push_skipped::true"
     exit 0
   fi
