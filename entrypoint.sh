@@ -66,7 +66,7 @@ assume_role() {
 # Request ECR credentials and execute returned command to login
 login_to_ecr() {
   echo "Logging into ECR in region: ${AWS_REGION}"
-  $(aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com)
+  aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com
 
   if [ $? -ne 0 ]; then
     echo "Failed to log into AWS ECR" >&2
